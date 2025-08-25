@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project is a simple chatbot API built with FastAPI and Hugging Face Transformers, designed for easy deployment in Kubernetes or Docker environments. The chatbot uses the `google/gemma-3-270m` model for generating responses and supports cross-origin requests via CORS middleware, making it easy to integrate with web frontends.
+This project is a simple chatbot API built with FastAPI and Hugging Face Transformers, designed for easy deployment in Kubernetes or Docker environments. The chatbot uses the `Qwen/Qwen2.5-0.5B-Instruct` model for generating responses and supports cross-origin requests via CORS middleware, making it easy to integrate with web frontends.
 
 ## Features
 
@@ -76,9 +76,6 @@ CMD ["uvicorn", "chatbot:app", "--host", "0.0.0.0", "--port", "8000"]
 - **Model:** Change the model name in `chatbot.py` to use a different Hugging Face model.
 - **CORS:** Restrict allowed origins in the CORS middleware for production security.
 
-## License
-
-This project is licensed under the MIT License.
 
 ## Author
 
