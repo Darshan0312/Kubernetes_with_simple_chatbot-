@@ -12,18 +12,17 @@ model_name = "Qwen/Qwen2-0.5B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
-    torch_dtype="auto",  # "auto" is often more robust
+    torch_dtype="auto",
     device_map="auto"
 )
 
-# **IMPORTANT**: Set pad_token_id to eos_token_id for open-ended generation
-# This silences a warning and is a standard practice.
+# Set pad_token_id to eos_token_id for open-ended generation
 if tokenizer.pad_token is None:
     tokenizer.pad_token = tokenizer.eos_token
 model.config.pad_token_id = model.config.eos_token_id
 
 
-# Function to generate chatbot response (Corrected Version)
+# Function to generate chatbot response (Final Corrected Version)
 def chatbot(prompt: str) -> str:
     # Use a system prompt for better, more consistent behavior
     messages = [
@@ -31,21 +30,25 @@ def chatbot(prompt: str) -> str:
         {"role": "user", "content": prompt}
     ]
     
-    # Tokenize the input using the chat template.
-    # This prepares the input in the exact format the model was trained on.
-    model_inputs = tokenizer.apply_chat_template(
+    # Step 1: Format the chat messages into a single string using the template.
+    # The `add_generation_prompt=True` is crucial for instruct models.
+    prompt_string = tokenizer.apply_chat_template(
         messages, 
-        return_tensors="pt"
-    ).to(model.device)
+        tokenize=False, 
+        add_generation_prompt=True
+    )
+
+    # Step 2: Tokenize the formatted string. This reliably returns a dictionary
+    # containing 'input_ids' and 'attention_mask'.
+    model_inputs = tokenizer(prompt_string, return_tensors="pt").to(model.device)
 
     # Generate the response
     with torch.no_grad():
-        # **THE KEY FIX IS HERE**: Use **model_inputs to pass both 
-        # input_ids and the crucial attention_mask to the model.
+        # The **model_inputs call now works perfectly because model_inputs is a dictionary.
         generated_ids = model.generate(
             **model_inputs,
             max_new_tokens=512,
-            do_sample=True, # Improves creativity
+            do_sample=True,
             temperature=0.7,
             top_p=0.9
         )
